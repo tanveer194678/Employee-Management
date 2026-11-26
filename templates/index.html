@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student & Course Management</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <title>Student &amp; Course Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
@@ -13,10 +13,10 @@
     <aside class="sidebar">
         <h2>Campus<span>Flow</span></h2>
         <p class="side-label">MANAGEMENT</p>
-        <a class="nav active" href="#dashboard">▦ Dashboard</a>
-        <a class="nav" href="#students">♙ Students</a>
-        <a class="nav" href="#courses">▣ Courses</a>
-        <a class="nav" href="#enrollments">✎ Enrollments</a>
+        <a class="nav active" href="#dashboard" title="Dashboard"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-text">Dashboard</span></a>
+        <a class="nav" href="#students" title="Students"><span class="nav-icon" aria-hidden="true">♙</span><span class="nav-text">Students</span></a>
+        <a class="nav" href="#courses" title="Courses"><span class="nav-icon" aria-hidden="true">▣</span><span class="nav-text">Courses</span></a>
+        <a class="nav" href="#enrollments" title="Enrollments"><span class="nav-icon" aria-hidden="true">✎</span><span class="nav-text">Enrollments</span></a>
 
         <div class="side-footer">
             <p>Student Administration</p>
@@ -33,6 +33,11 @@
             </div>
             <span class="admin-badge">Administrator</span>
         </header>
+
+        <div id="appMessage" class="app-message" role="status" aria-live="polite" hidden>
+            <span id="appMessageText"></span>
+            <button type="button" id="appMessageClose" class="app-message-close" aria-label="Dismiss notification">&times;</button>
+        </div>
 
         <!-- DASHBOARD CARDS -->
         <section class="stats">
@@ -74,22 +79,22 @@
                 <input type="hidden" id="studentId">
 
                 <div class="field">
-                    <label>Student Name</label>
+                    <label for="studentName">Student Name</label>
                     <input type="text" id="studentName" placeholder="Enter full name" required>
                 </div>
 
                 <div class="field">
-                    <label>Email</label>
+                    <label for="studentEmail">Email</label>
                     <input type="email" id="studentEmail" placeholder="student@email.com" required>
                 </div>
 
                 <div class="field">
-                    <label>Student ID</label>
+                    <label for="rollNumber">Student ID</label>
                     <input type="text" id="rollNumber" placeholder="e.g. STU1001" required>
                 </div>
 
                 <div class="field">
-                    <label>Department</label>
+                    <label for="studentDepartment">Department</label>
                     <select id="studentDepartment" required>
                         <option value="">Select department</option>
                         <option>Computer Science</option>
@@ -98,11 +103,12 @@
                         <option>Information Technology</option>
                         <option>Business Administration</option>
                         <option>Electronics</option>
+                        <option>Unassigned</option>
                     </select>
                 </div>
 
                 <div class="field">
-                    <label>Year</label>
+                    <label for="studentYear">Year</label>
                     <select id="studentYear" required>
                         <option value="">Select year</option>
                         <option>1st Year</option>
@@ -113,7 +119,7 @@
                 </div>
 
                 <div class="field">
-                    <label>Status</label>
+                    <label for="studentStatus">Status</label>
                     <select id="studentStatus">
                         <option>Active</option>
                         <option>Inactive</option>
@@ -127,7 +133,12 @@
             </form>
 
             <div class="toolbar">
-                <input type="search" id="studentSearch" placeholder="Search name, ID, email or department...">
+                <select id="studentStatusFilter" aria-label="Filter students by status">
+                    <option value="">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <input type="search" id="studentSearch" placeholder="Search name, ID, email, department or year...">
             </div>
 
             <div class="table-wrap">
@@ -161,27 +172,29 @@
                 <input type="hidden" id="courseId">
 
                 <div class="field">
-                    <label>Course Name</label>
+                    <label for="courseName">Course Name</label>
                     <input id="courseName" placeholder="e.g. Machine Learning" required>
                 </div>
 
                 <div class="field">
-                    <label>Course Code</label>
+                    <label for="courseCode">Course Code</label>
                     <input id="courseCode" placeholder="e.g. DS301" required>
                 </div>
 
                 <div class="field">
-                    <label>Instructor</label>
-            <input id="courseInstructor" placeholder="Instructor name" required>
+                    <label for="courseInstructor">Instructor</label>
+                    <input id="courseInstructor" placeholder="Instructor name" required>
                 </div>
 
                 <div class="field">
-                    <label>Credits</label>
+                    <label for="courseCredits">Credits</label>
                     <input id="courseCredits" type="number" min="1" max="10" value="3" required>
                 </div>
 
-                <button class="primary-btn" id="courseSubmit" type="submit">+ Add Course</button>
-                <button type="button" class="secondary-btn" id="cancelCourseEdit" hidden>Cancel</button>
+                <div class="form-buttons">
+                    <button class="primary-btn" id="courseSubmit" type="submit">+ Add Course</button>
+                    <button type="button" class="secondary-btn" id="cancelCourseEdit" hidden>Cancel Edit</button>
+                </div>
             </form>
 
             <div class="course-grid" id="courseGrid"></div>
@@ -198,20 +211,20 @@
 
             <form id="enrollmentForm" class="enrollment-form">
                 <div class="field">
-                    <label>Select Student</label>
+                    <label for="enrollStudent">Select Student</label>
                     <select id="enrollStudent" required>
                         <option value="">Choose a student</option>
                     </select>
                 </div>
 
                 <div class="field">
-                    <label>Select Course</label>
+                    <label for="enrollCourse">Select Course</label>
                     <select id="enrollCourse" required>
                         <option value="">Choose a course</option>
                     </select>
                 </div>
 
-                <button class="primary-btn" type="submit">Enroll Student</button>
+                <button class="primary-btn" id="enrollSubmit" type="submit">Enroll Student</button>
             </form>
 
             <div class="table-wrap">
@@ -228,11 +241,11 @@
             </div>
         </section>
 
-        <footer>CampusFlow © 2026 | Student & Course Management System</footer>
+        <footer>CampusFlow &copy; 2026 | Student &amp; Course Management System</footer>
 
     </main>
 </div>
 
-<script src="script.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </body>
 </html>
